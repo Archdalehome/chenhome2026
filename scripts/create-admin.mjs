@@ -58,10 +58,32 @@ if (!Number.isInteger(iterations) || iterations < MIN_ITERATIONS || iterations >
 }
 
 let password = process.env.ADMIN_PASSWORD ?? ''
+let passwordSource = '环境变量 ADMIN_PASSWORD'
+
 if (!password) {
+  // 关键防护：非交互式终端（管道、重定向、多行粘贴残留缓冲）下，
+  // readline 会把缓冲区里的内容当成密码，用户既看不到提示也不知道密码是什么。
+  // 这里直接拒绝运行，要求明确传入密码。
+  if (!stdin.isTTY) {
+    console.error('\n✗ 当前不是交互式终端，无法安全地询问密码。')
+    console.error('  请改用「明确传入」的方式（推荐）：\n')
+    console.error(`    PowerShell :  $env:ADMIN_PASSWORD='你的密码'; npm run admin:create -- ${email}`)
+    console.error(`    macOS/Linux:  ADMIN_PASSWORD='你的密码' npm run admin:create -- ${email}\n`)
+    console.error('  脚本拒绝在非交互式终端里静默读取密码，避免把管道/粘帖残留内容当成密码。')
+    process.exit(1)
+  }
+
+  passwordSource = '交互式输入（两次确认）'
   const rl = createInterface({ input: stdin, output: stdout })
-  password = (await rl.question(`为 ${email} 设置密码（至少 8 位）：`)).trim()
+  const first = (await rl.question(`为 ${email} 设置密码（至少 8 位）：`)).trim()
+  const second = (await rl.question('再输入一次以确认：')).trim()
   rl.close()
+
+  if (first !== second) {
+    console.error('✗ 两次输入的密码不一致，已取消（未写入数据库）')
+    process.exit(1)
+  }
+  password = first
 }
 
 if (password.length < 8) {
@@ -94,6 +116,7 @@ const wranglerArgs = [
 ]
 
 console.log(`\n→ 密码哈希迭代次数：${iterations}（Workers 免费版建议 ≤5000；升级到 Workers Paid 后可用 --iterations=150000）`)
+console.log(`→ 密码来源：${passwordSource}（长度 ${password.length} 位）`)
 console.log(`→ 正在写入 ${useLocal ? '本地模拟' : '线上'} D1：${DB_NAME}\n`)
 
 const result = spawnSync('npx', wranglerArgs, { stdio: 'inherit', shell: true })

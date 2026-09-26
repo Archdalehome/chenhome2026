@@ -117,9 +117,18 @@ powershell -File dev/smoke-test.ps1 -Email you@example.com -Password 'your-passw
 | `npm run smoke:local` | 对本地环境跑接口冒烟测试 |
 | `npm run typecheck` | 类型检查（前端 + `functions/`） |
 
-> ⚠️ 不要写成 `npm run admin:create -- you@example.com --local`：npm 会吞掉 `--local`。
-> 本地请用 `npm run admin:create:local -- you@example.com`。
-> 想免交互可先设置环境变量 `ADMIN_PASSWORD`。
+> **创建/重置管理员：推荐"明确传密码"的写法**（避免交互式输入被终端缓冲内容顶替）：
+>
+> ```powershell
+> $env:ADMIN_PASSWORD='你的强密码'          # 12 位以上随机串
+> npm run admin:create -- you@example.com
+> Remove-Item Env:\ADMIN_PASSWORD           # 用完立刻清掉
+> ```
+>
+> - 不设 `ADMIN_PASSWORD` 时脚本会**交互式询问两次**；若当前不是交互式终端（管道、重定向、多行粘贴残留缓冲），脚本会**直接拒绝运行**，不会静默接受输入
+> - 脚本只打印「密码来源 + 密码长度」，**从不打印密码本身**；数据库里只存 `pbkdf2$迭代次数$盐$哈希`
+> - ⚠️ 不要写成 `npm run admin:create -- you@example.com --local`：`--local` 会被 npm 吞掉，本地请用 `npm run admin:create:local -- you@example.com`
+> - ⚠️ 在 PowerShell 里**一次只粘一条命令**；多行粘帖会让终端进入 `>>` 续行状态，后续行可能被前台进程的 stdin 吃掉
 
 > ⚠️ `db:init:local` 与 `admin:create:local` 依赖根目录的 `wrangler.jsonc`（要与 `wrangler pages dev` 共用同一份本地 D1），
 > 所以先跑 `npm run dev:setup`；
