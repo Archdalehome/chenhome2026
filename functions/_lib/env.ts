@@ -12,6 +12,12 @@ export interface Env {
   BUCKET: R2Bucket
   /** 会话签名密钥（Worker Secret，建议 32 位以上随机串） */
   SESSION_SECRET: string
+  /**
+   * 允许校验的密码哈希迭代次数上限（可选，默认 15000）。
+   * Workers 免费版单请求 CPU 限额 10ms，PBKDF2 大约 0.6μs/次迭代，
+   * 因此 15000 次 ≈ 9ms。升级到 Workers Paid 后可把它调大（如 200000）。
+   */
+  PBKDF2_MAX_ITERATIONS?: string
 }
 
 export type ProductRow = {

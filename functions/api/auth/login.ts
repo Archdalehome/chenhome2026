@@ -4,6 +4,8 @@ import {
   clientIp,
   createSessionToken,
   isLockedOut,
+  maxIterations,
+  readHashIterations,
   recordLoginFailure,
   sessionCookie,
   verifyPasswordOrDummy,
@@ -32,6 +34,21 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause)
     return error(`数据库查询失败：${message}（是否已执行 schema.sql？）`, 500)
+  }
+
+  // CPU 保护：存量哈希的迭代次数若超过当前计划允许的上限，直接返回可读错误，
+  // 而不是让请求被 Workers 的 CPU 限额强杀（那样前端只会看到 error code: 1101 / HTTP 500）
+  const storedIterations = readHashIterations(user?.password_hash)
+  const cap = maxIterations(env)
+  if (storedIterations > cap) {
+    return error(
+      `管理员密码的哈希迭代次数为 ${storedIterations}，超过当前上限 ${cap}（Workers 免费版单请求 CPU 限额 10ms，` +
+        `15 万次迭代约需 108ms，会被运行时直接终止）。\n` +
+        `解决办法二选一：\n` +
+        `① 在本机重新生成密码（推荐）：npm run admin:create -- <邮箱> --iterations=${cap}\n` +
+        `② 升级到 Workers Paid（CPU 限额 30s），然后在 Pages 环境变量里设置 PBKDF2_MAX_ITERATIONS=${storedIterations}`,
+      500,
+    )
   }
 
   // 账号不存在时同样消耗 PBKDF2 时间，避免通过响应时间枚举管理员邮箱

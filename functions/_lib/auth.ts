@@ -76,6 +76,27 @@ export type Session = {
   exp: number
 }
 
+/**
+ * 默认允许校验的最大迭代次数。
+ * Workers 免费版单请求 CPU 限额 10ms，而 PBKDF2 在 workerd 上约 0.6μs/次迭代
+ * （实测：1 万次≈6ms、2.5 万次≈34ms、15 万次≈108ms），故上限取 15000（≈9ms）。
+ * 升级到 Workers Paid（CPU 30s）后可把 PBKDF2_MAX_ITERATIONS 调大。
+ */
+export const DEFAULT_MAX_ITERATIONS = 15000
+
+/** 从存储的哈希串读出迭代次数；格式非法返回 0 */
+export function readHashIterations(stored: string | null | undefined): number {
+  if (!stored) return 0
+  const value = Number(stored.split('$')[1])
+  return Number.isInteger(value) && value > 0 ? value : 0
+}
+
+/** 读取 env 中配置的迭代次数上限（非法或未配置则用默认值） */
+export function maxIterations(env: Env): number {
+  const configured = Number(env.PBKDF2_MAX_ITERATIONS)
+  return Number.isFinite(configured) && configured > 0 ? configured : DEFAULT_MAX_ITERATIONS
+}
+
 async function hmacKey(secret: string): Promise<CryptoKey> {
   return crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
     'sign',
