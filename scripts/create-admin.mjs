@@ -24,10 +24,12 @@ const REMOTE_CONFIG = 'dev/wrangler.remote.jsonc'
 /**
  * PBKDF2 迭代次数。
  * Workers 免费版单请求 CPU 限额 10ms，workerd 上 PBKDF2 约 0.6μs/次迭代：
- *   1 万次 ≈ 6ms（默认值，免费版可用）
+ *   5000 次 ≈ 3ms（默认值，免费版安全）
+ *   1 万次 ≈ 6ms（免费版偏紧）
  *   15 万次 ≈ 108ms（仅 Workers Paid，CPU 限额 30s 时可用）
+ * 可用 --iterations=N 或环境变量 ADMIN_ITERATIONS 调整。
  */
-const DEFAULT_ITERATIONS = 10000
+const DEFAULT_ITERATIONS = 5000
 const MIN_ITERATIONS = 1000
 const MAX_ITERATIONS = 1000000
 const ITERATIONS = 150000
@@ -91,7 +93,7 @@ const wranglerArgs = [
   `--file=${SQL_FILE}`,
 ]
 
-console.log(`\n→ 密码哈希迭代次数：${iterations}（Workers 免费版建议 ≤15000；升级到 Paid 后可用 --iterations=150000）`)
+console.log(`\n→ 密码哈希迭代次数：${iterations}（Workers 免费版建议 ≤5000；升级到 Workers Paid 后可用 --iterations=150000）`)
 console.log(`→ 正在写入 ${useLocal ? '本地模拟' : '线上'} D1：${DB_NAME}\n`)
 
 const result = spawnSync('npx', wranglerArgs, { stdio: 'inherit', shell: true })
