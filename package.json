@@ -12,7 +12,7 @@
     "preview": "npx --yes serve@14 out",
     "preview:cf": "wrangler pages dev",
     "dev:setup": "node scripts/setup-local.mjs",
-    "db:init": "wrangler d1 execute chenhome-db --remote --file=./schema.sql",
+    "db:init": "wrangler d1 execute chenhome-db -c dev/wrangler.remote.jsonc --remote --file=./schema.sql",
     "db:init:local": "wrangler d1 execute chenhome-db --local --file=./schema.sql",
     "admin:create": "node scripts/create-admin.mjs",
     "admin:create:local": "node scripts/create-admin.mjs --local",

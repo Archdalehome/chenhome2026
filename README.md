@@ -121,6 +121,11 @@ powershell -File dev/smoke-test.ps1 -Email you@example.com -Password 'your-passw
 > 本地请用 `npm run admin:create:local -- you@example.com`。
 > 想免交互可先设置环境变量 `ADMIN_PASSWORD`。
 
+> ⚠️ `db:init:local` 与 `admin:create:local` 依赖根目录的 `wrangler.jsonc`（要与 `wrangler pages dev` 共用同一份本地 D1），
+> 所以先跑 `npm run dev:setup`；
+> 而 `db:init` 与 `admin:create`（线上）**不受该文件影响**——它们使用 `dev/wrangler.remote.jsonc` 按数据库名解析，
+> 不会误用本地占位 `database_id`。
+
 ---
 
 ## 4. 环境变量与密钥
@@ -165,7 +170,12 @@ npx wrangler d1 create chenhome-db
 npm run db:init
 ```
 
-等价于 `npx wrangler d1 execute chenhome-db --remote --file=./schema.sql`，幂等、可重复执行。
+等价于 `npx wrangler d1 execute chenhome-db -c dev/wrangler.remote.jsonc --remote --file=./schema.sql`，幂等、可重复执行。
+
+> 命令里的 `-c dev/wrangler.remote.jsonc` 不能省：它是一份**不含 D1 绑定**的配置，
+> 让 wrangler 按数据库名去云端解析目标库。否则若根目录存在本地开发用的 `wrangler.jsonc`
+> （`database_id` 是占位值），远程命令会拿着占位 ID 调 API 并报
+> `Invalid property: databaseId => Invalid uuid [code: 7400]`。
 
 ### 5.3 创建 R2 存储桶
 
@@ -279,6 +289,7 @@ powershell -File dev/smoke-test.ps1 -BaseUrl https://chenhome2026.pages.dev -Ema
 | --- | --- |
 | `/api/*` 报 `DB is not defined` 或 `Cannot read properties of undefined` | Pages 里没绑定 D1，或绑定名不是 `DB`（见 6.4）；绑定后需要重新部署 |
 | `/api/products` 返回 `no such table: products` | 线上 D1 没执行 `schema.sql`，跑 `npm run db:init` |
+| 执行 `db:init` / `admin:create` 报 `Invalid property: databaseId => Invalid uuid [code: 7400]` | 远程命令误读了根目录 `wrangler.jsonc` 里本地占位的 `database_id`。项目内脚本已改用 `dev/wrangler.remote.jsonc`（按库名解析）；**手动**执行 wrangler 远程命令时请带上 `-c dev/wrangler.remote.jsonc` |
 | 后台登录提示"服务端未配置 SESSION_SECRET" | 没在 Pages 配置 Secret，或配了没重新部署 |
 | 登录报"数据库查询失败" | D1 未绑定或未建表 |
 | 上传图片失败，提示 R2 未启用 | 没创建/绑定 R2；也可以改用"粘贴图片 URL"的方式 |

@@ -1,0 +1,17 @@
+{
+  // ============================================================
+  // 仅供「线上 / 远程」的 wrangler 命令使用（npm run db:init、npm run admin:create）。
+  //
+  // 这里刻意不写 d1_databases / r2_buckets：
+  //   - 线上绑定在 Pages 控制台配置（见 README 第 6.4 节）
+  //   - 让 wrangler 按“数据库名”通过 API 解析目标库
+  //
+  // 为什么不直接读根目录的 wrangler.jsonc？
+  //   根目录那份是 npm run dev:setup 生成的**本地**配置，database_id 是占位值
+  //   local-dev-only。若远程命令读到它，就会去请求
+  //   /d1/database/local-dev-only/import 并报 “Invalid uuid” (code 7400)。
+  // ============================================================
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "chenhome2026",
+  "compatibility_date": "2026-09-26"
+}

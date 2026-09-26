@@ -17,6 +17,9 @@ import { stdin, stdout } from 'node:process'
 import { createInterface } from 'node:readline/promises'
 
 const DB_NAME = 'chenhome-db'
+// 远程命令使用这份「不含 D1 绑定」的配置，强制按数据库名走 API 解析，
+// 避免读到根目录本地配置里的占位 database_id（会报 Invalid uuid）
+const REMOTE_CONFIG = 'dev/wrangler.remote.jsonc'
 const ITERATIONS = 150000
 const SALT_BYTES = 16
 const KEY_BYTES = 32
@@ -56,14 +59,14 @@ const sql =
 
 writeFileSync(SQL_FILE, sql, 'utf8')
 
-const scope = useLocal ? '--local' : '--remote'
 const wranglerArgs = [
   'wrangler',
   'd1',
   'execute',
   DB_NAME,
-  // 本地模式直接用根目录的 wrangler.jsonc（由 npm run dev:setup 生成）
-  ...(useLocal ? ['--local'] : ['--remote']),
+  // 本地模式用根目录的 wrangler.jsonc（由 npm run dev:setup 生成）；
+  // 远程模式用不含 D1 绑定的配置，按库名解析
+  ...(useLocal ? ['--local'] : ['-c', REMOTE_CONFIG, '--remote']),
   `--file=${SQL_FILE}`,
 ]
 
@@ -75,8 +78,12 @@ if (result.status === 0) {
   rmSync(SQL_FILE, { force: true })
   console.log(`\n✓ 完成：${email} 现在可以用该密码登录 /admin/login`)
 } else {
-  console.error('\n✗ 自动执行 wrangler 失败。请手动执行下面这条命令：\n')
-  console.error(`  npx wrangler d1 execute ${DB_NAME} ${scope} --file=${SQL_FILE}\n`)
+  console.error('\n✗ 自动执行 wrangler 失败。常见原因：')
+  console.error('  1) 还没登录 Cloudflare：先执行  npx wrangler login')
+  console.error(`  2) 线上还没有 D1 数据库：先执行  npx wrangler d1 create ${DB_NAME}`)
+  console.error('  3) 名字不一致：库名与 DB_NAME 必须相同\n')
+  console.error('也可以手动执行下面这条命令：\n')
+  console.error(`  npx wrangler d1 execute ${DB_NAME} ${wranglerArgs.slice(4, -1).join(' ')} --file=${SQL_FILE}\n`)
   console.error('执行成功后请删除该文件（内含密码哈希，切勿提交）：')
   console.error(`  del ${SQL_FILE}      # macOS/Linux: rm ${SQL_FILE}\n`)
   process.exit(1)
