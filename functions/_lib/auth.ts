@@ -79,10 +79,11 @@ export type Session = {
 /**
  * 默认允许校验的最大迭代次数。
  * Workers 免费版单请求 CPU 限额 10ms，而 PBKDF2 在 workerd 上约 0.6μs/次迭代
- * （实测：1 万次≈6ms、2.5 万次≈34ms、15 万次≈108ms），故上限取 15000（≈9ms）。
- * 升级到 Workers Paid（CPU 30s）后可把 PBKDF2_MAX_ITERATIONS 调大。
+ * （实测：5000 次≈3ms、1 万次≈6ms、2.5 万次≈34ms、15 万次≈108ms），
+ * 故上限取 5000（≈3ms，留足余量）。升级到 Workers Paid（CPU 30s）后
+ * 可把 PBKDF2_MAX_ITERATIONS 调大（如 150000）以提升密码哈希强度。
  */
-export const DEFAULT_MAX_ITERATIONS = 15000
+export const DEFAULT_MAX_ITERATIONS = 5000
 
 /** 从存储的哈希串读出迭代次数；格式非法返回 0 */
 export function readHashIterations(stored: string | null | undefined): number {

@@ -287,6 +287,10 @@ powershell -File dev/smoke-test.ps1 -BaseUrl https://chenhome2026.pages.dev -Ema
 
 | 现象 | 原因 / 处理 |
 | --- | --- |
+| 登录报 `error code: 1101`，前端只显示「请求失败（HTTP 500）」 | 密码哈希的 PBKDF2 迭代次数超出 Workers 计划的 CPU 限额（免费用 10ms、Paid 30s）。跑 `npm run admin:create -- <邮箱> --iterations=5000` 重新生成密码即可；升级 Workers Paid 后可改用 `--iterations=150000` 并在 Pages 环境变量里设置 `PBKDF2_MAX_ITERATIONS=150000` |
+| 推送到 `main` 后 Cloudflare 没有自动构建 | GitHub 的推送事件没送达 Cloudflare（webhook 问题）。临时用 Deploy Hook 触发：项目 → Settings → Builds → Add deploy hook（branch 填 `main`），然后 `curl -X POST <hook-url>` |
+| 触发部署后线上代码却没变 | ⚠️ 对**旧部署**点「Retry deployment」会重新发布那个旧提交并覆盖最新版本。要发布最新提交必须用 Deploy Hook（或修好 webhook 后正常 push） |
+| 站点实际域名不是 `chenhome2026.pages.dev` | 若绑了自定义域名（例如 `test.chenfurniture.com`），请把 `NEXT_PUBLIC_SITE_URL` 改成正式域名并重新部署，否则 canonical / sitemap 仍指向 pages.dev |
 | `/api/*` 报 `DB is not defined` 或 `Cannot read properties of undefined` | Pages 里没绑定 D1，或绑定名不是 `DB`（见 6.4）；绑定后需要重新部署 |
 | `/api/products` 返回 `no such table: products` | 线上 D1 没执行 `schema.sql`，跑 `npm run db:init` |
 | 执行 `db:init` / `admin:create` 报 `Invalid property: databaseId => Invalid uuid [code: 7400]` | 远程命令误读了根目录 `wrangler.jsonc` 里本地占位的 `database_id`。项目内脚本已改用 `dev/wrangler.remote.jsonc`（按库名解析）；**手动**执行 wrangler 远程命令时请带上 `-c dev/wrangler.remote.jsonc` |
