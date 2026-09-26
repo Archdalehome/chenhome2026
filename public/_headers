@@ -1,0 +1,23 @@
+# Cloudflare Pages 响应头配置（构建后随 out/ 一起发布）
+# 文档：https://developers.cloudflare.com/pages/configuration/headers/
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+# Next.js 的静态资源带内容哈希，可长期强缓存
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 图片与字体缓存一天
+/images/*
+  Cache-Control: public, max-age=86400
+/_next/image*
+  Cache-Control: public, max-age=86400
+
+# HTML 不缓存，保证发版后立刻生效
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate

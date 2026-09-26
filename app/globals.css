@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-earthText bg-warmBg antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif;
+  }
+
+  button {
+    @apply transition-all;
+  }
+
+  /* 键盘可访问性：统一焦点样式 */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-terracotta;
+  }
+
+  img {
+    @apply select-none;
+  }
+}
+
+@layer utilities {
+  /* 无副作用地包裹文本容器，防止长单词撑破移动端布局 */
+  .text-balance-safe {
+    overflow-wrap: anywhere;
+  }
+}
+
