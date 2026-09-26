@@ -24,7 +24,7 @@ Next.js 14（App Router）+ Tailwind CSS + Supabase，**纯静态导出**并部�
 ## 2. 快速开始（本地）
 
 ```bash
-# 1) 安装依赖（建议 Node 20，见 .node-version）
+# 1) 安装依赖（Node 22，见 .node-version；Cloudflare 构建镜像默认也是 Node 22）
 npm install
 
 # 2) 配置环境变量
@@ -89,13 +89,17 @@ npm run dev
 
    | 项 | 值 |
    | --- | --- |
-   | Framework preset | 选 `Next.js (Static HTML Export)`；下拉里没有这项就选 `None`（不影响结果） |
-   | Build command | `npm run build` |
-   | Build output directory | `out` |
-   | Node version（环境变量） | `NODE_VERSION` = `20`（或依赖仓库里的 `.node-version`） |
+   | Project name（项目名称） | 建议填 `chenhome2026` —— 它决定默认域名 `chenhome2026.pages.dev`，正好与 `NEXT_PUBLIC_SITE_URL` 的默认值一致 |
+   | Production branch（生产分支） | `main` |
+   | Framework preset | `Next.js (Static HTML Export)`（官方预设会自动填好 `npx next build` 与 `out`）；下拉里没有就选 `None` 并手填下面两行 |
+   | Build command（构建命令） | `npm run build`（与官方预设的 `npx next build` 等价） |
+   | Build output directory（输出目录） | `out` |
+   | Root directory（根目录） | 留空 |
+   | Node version | 不需要设置：Pages v3 构建镜像默认 Node 22.16，与仓库里的 `.node-version`（22）一致。如需锁定可加环境变量 `NODE_VERSION` |
 
-   > 只有「构建命令 + 输出目录」这两项是必须正确的；预设只是自动填充它们。
+   > 真正必须正确的只有「构建命令 + 输出目录」这两项；Framework preset 只是帮你自动填它们。
    > ⚠️ 不要选普通的 `Next.js` 预设，它会走 `@cloudflare/next-on-pages`（SSR 路线），与本项目的纯静态导出不匹配。
+   > ⚠️ 另外注意：**Git 集成的项目之后无法再切换为 Direct Upload**，两种部署方式一开始就要选定。
 
 4. **Environment variables** 中添加第 3 节的三条变量（Production 和 Preview 都建议加）。
 5. Save and Deploy。之后每次 `git push` 都会自动重新构建。
@@ -144,7 +148,7 @@ chenhome/
 ├── public/_headers             # Cloudflare Pages 缓存与安全响应头
 ├── database.sql                # 数据库脚本（幂等）
 ├── next.config.js              # output: 'export'
-└── .node-version               # 构建 Node 版本（20）
+└── .node-version               # 构建 Node 版本（22）
 ```
 
 ---
@@ -205,7 +209,7 @@ chenhome/
 
 | 现象 | 原因 / 处理 |
 | --- | --- |
-| Cloudflare 构建报 Node 版本错误 | 设置环境变量 `NODE_VERSION=20`（或保留 `.node-version`） |
+| 构建日志报 Node 版本相关错误 | 仓库自带 `.node-version`（22），与 Pages v3 镜像默认一致，一般无需处理；要强制指定就加环境变量 `NODE_VERSION=22` |
 | 首页订阅按钮是灰色 | 没有配置环境变量，或配置后没有重新部署 |
 | 后台登录成功但保存商品失败 | `database.sql` 未执行（尤其 `is_admin()` 与 RLS 策略），或邮箱未加入 `admin_users` |
 | 上传图片报 `new row violates row-level security policy` | Storage 策略未执行，重跑 `database.sql` 第 4 节 |
