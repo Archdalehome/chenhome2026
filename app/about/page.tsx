@@ -5,7 +5,7 @@ import { unsplashImage } from '@/lib/catalog'
 export const metadata: Metadata = {
   title: 'About',
   description:
-    'Casa Plume was born from a love of travel, craft and the belief that home should feel like a refuge.',
+    'Chen Furniture was born from a love of travel, craft and the belief that home should feel like a refuge.',
   alternates: { canonical: '/about' },
 }
 
@@ -13,7 +13,7 @@ export default function AboutPage() {
   return (
     <main className="mx-auto max-w-7xl px-6 py-16">
       <div className="mb-16 text-center">
-        <h1 className="mb-4 text-4xl">About Casa Plume</h1>
+        <h1 className="mb-4 text-4xl">About Chen Furniture</h1>
         <p className="mx-auto max-w-2xl text-stone-600">Textiles for a more beautiful life.</p>
       </div>
 
@@ -29,7 +29,7 @@ export default function AboutPage() {
         </div>
         <div>
           <h2 className="text-3xl mb-4">Our Story</h2>
-          <p className="mb-4">Casa Plume was born from a love of travel, craft and the belief that home should feel like a refuge. We partner with artisans worldwide to create pillows that bring beauty, comfort and meaning to everyday living.</p>
+          <p className="mb-4">Chen Furniture was born from a love of travel, craft and the belief that home should feel like a refuge. We partner with artisans worldwide to create pillows that bring beauty, comfort and meaning to everyday living.</p>
           <p className="mb-4">Each piece tells a story — of hands that wove it, traditions passed down through generations, and natural materials gathered from the earth.</p>
           <p>We believe in slow living, in objects that last, and in the quiet power of softness.</p>
         </div>

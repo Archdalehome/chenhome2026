@@ -11,7 +11,7 @@ const PBKDF2_ITERATIONS = 150000
 const PBKDF2_KEY_BYTES = 32
 const SALT_BYTES = 16
 
-export const SESSION_COOKIE = 'casa_session'
+export const SESSION_COOKIE = 'chen_session'
 export const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7
 
 const LOGIN_MAX_ATTEMPTS = 8

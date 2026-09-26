@@ -17,7 +17,7 @@ export default function StorySection() {
       <div>
         <h2 className="mb-4 text-3xl">Our Story</h2>
         <p className="mb-6">
-          Casa Plume was born from a love of travel, craft and the belief that home should feel like a refuge. We
+          Chen Furniture was born from a love of travel, craft and the belief that home should feel like a refuge. We
           partner with artisans worldwide to create pillows that bring beauty, comfort and meaning to everyday living.
         </p>
         <Link href="/about" className="text-sm underline">

@@ -31,7 +31,7 @@ export default function Home() {
           />
         </div>
         <div className="relative z-10 mx-auto max-w-7xl px-6 py-24 text-white md:px-16 md:py-40">
-          <p className="mb-3 text-sm uppercase tracking-widest">CASA PLUME</p>
+          <p className="mb-3 text-sm uppercase tracking-widest">CHEN FURNITURE</p>
           <h1 className="mb-4 text-4xl md:text-6xl">Softness Lives Here</h1>
           <p className="mb-6 max-w-md text-lg">
             Artisan throw pillows for a more beautiful, intentional home.

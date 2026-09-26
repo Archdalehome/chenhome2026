@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   applicationName: siteConfig.name,
-  keywords: ['artisan pillows', 'linen pillow', 'handmade cushion', 'natural textiles', 'Casa Plume'],
+  keywords: ['artisan pillows', 'linen pillow', 'handmade cushion', 'natural textiles', 'Chen Furniture'],
   openGraph: {
     type: 'website',
     siteName: siteConfig.name,
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     url: '/',
     locale: 'en_US',
-    images: [{ url: ogImage, width: 1200, alt: 'Casa Plume artisan pillows' }],
+    images: [{ url: ogImage, width: 1200, alt: 'Chen Furniture artisan pillows' }],
   },
   twitter: {
     card: 'summary_large_image',

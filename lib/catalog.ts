@@ -175,9 +175,9 @@ export function formatPrice(price: number): string {
   return `$${Number.isInteger(price) ? price : price.toFixed(2)}`
 }
 
-/** 首页各版块的画句（静态文案，后台可改为 Supabase 驱动） */
+/** 站点级静态文案（品牌名、描述、站点 URL；前台构建期使用） */
 export const siteConfig = {
-  name: 'Casa Plume',
+  name: 'Chen Furniture',
   tagline: 'Textiles for a more beautiful life',
   description: 'Artisan throw pillows for a more beautiful, intentional home.',
   url: (process.env.NEXT_PUBLIC_SITE_URL || 'https://chenhome2026.pages.dev').replace(/\/$/, ''),

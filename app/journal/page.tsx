@@ -5,7 +5,7 @@ import { unsplashImage } from '@/lib/catalog'
 
 export const metadata: Metadata = {
   title: 'The Journal',
-  description: 'Stories on craft, home, and a slower way of living — from the Casa Plume journal.',
+  description: 'Stories on craft, home, and a slower way of living — from the Chen Furniture journal.',
   alternates: { canonical: '/journal' },
 }
 

@@ -5,7 +5,7 @@ import { collectionImageUrl, collections, getProductsByCollection } from '@/lib/
 
 export const metadata: Metadata = {
   title: 'Our Collections',
-  description: 'Explore Casa Plume textile collections — each inspired by travel and natural textures.',
+  description: 'Explore Chen Furniture textile collections — each inspired by travel and natural textures.',
   alternates: { canonical: '/collections' },
 }
 

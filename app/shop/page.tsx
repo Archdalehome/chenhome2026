@@ -5,7 +5,7 @@ import { formatPrice, productImageUrl, products } from '@/lib/catalog'
 
 export const metadata: Metadata = {
   title: 'Shop All Pillows',
-  description: 'Browse every Casa Plume artisan pillow — washed linen, woven textures and muted vintage hues.',
+  description: 'Browse every Chen Furniture artisan pillow — washed linen, woven textures and muted vintage hues.',
   alternates: { canonical: '/shop' },
 }
 

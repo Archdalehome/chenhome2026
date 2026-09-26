@@ -22,6 +22,22 @@ type CartContextType = {
   setCartOpen: (open: boolean) => void
 }
 
+/** 购物车在浏览器中的存储键（品牌更名后保留对旧键的一次性迁移，避免用户丢购物车） */
+const CART_STORAGE_KEY = 'chen_cart'
+const LEGACY_CART_STORAGE_KEY = 'casa_cart'
+
+function loadCart(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY) ?? localStorage.getItem(LEGACY_CART_STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    localStorage.removeItem(LEGACY_CART_STORAGE_KEY)
+    return Array.isArray(parsed) ? (parsed as CartItem[]) : []
+  } catch {
+    return []
+  }
+}
+
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -29,12 +45,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartOpen, setCartOpen] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem('casa_cart')
-    if (saved) setCart(JSON.parse(saved))
+    setCart(loadCart())
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('casa_cart', JSON.stringify(cart))
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart))
   }, [cart])
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0)

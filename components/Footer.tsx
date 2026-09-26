@@ -27,7 +27,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div>
-            <h2 className="mb-4 font-serif text-xl">Casa Plume</h2>
+            <h2 className="mb-4 font-serif text-xl">Chen Furniture</h2>
             <p className="text-sm opacity-80">TEXTILES FOR A MORE BEAUTIFUL LIFE</p>
           </div>
 
@@ -60,7 +60,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 border-t border-white/20 pt-6 text-xs opacity-60">
-          © {year} Casa Plume. All rights reserved.
+          © {year} Chen Furniture. All rights reserved.
         </div>
       </div>
     </footer>

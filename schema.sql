@@ -1,5 +1,5 @@
 -- ============================================================
--- Casa Plume — Cloudflare D1 (SQLite) 建表 + 种子数据
+-- Chen Furniture — Cloudflare D1 (SQLite) 建表 + 种子数据
 -- 幂等：可重复执行
 --
 -- 线上执行：npm run db:init        (= wrangler d1 execute chenhome-db --remote --file=./schema.sql)
@@ -110,7 +110,7 @@ values
 insert or ignore into home_page_content
   (section_key, title, sub_title, description, button_text, button_link, image_url)
 values
-  ('hero', 'Casa Plume', 'Textiles for a more beautiful life',
+  ('hero', 'Chen Furniture', 'Textiles for a more beautiful life',
    'Handcrafted artisan pillows inspired by travels around the world. Soft textures, natural tones, made by skilled craftspeople.',
    'Shop Collection', '/shop', 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=70'),
   ('craft', 'Crafted by Hand', 'for a kinder home',
@@ -120,7 +120,7 @@ values
    'Thoughtful, timeless gifts for homes and hearts you love.',
    'Shop Gifts', '/shop', 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=1200&q=70'),
   ('story', 'Our Story', '',
-   'Casa Plume was born from a love of travel, craft and the belief that home should feel like a refuge.',
+   'Chen Furniture was born from a love of travel, craft and the belief that home should feel like a refuge.',
    'Read Our Story', '/about', 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=70');
 
 -- 3. 创建管理员账号 -------------------------------------------

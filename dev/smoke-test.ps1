@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Smoke test for the Casa Plume Pages Functions API (Cloudflare D1 + R2).
+  Smoke test for the Chen Furniture Pages Functions API (Cloudflare D1 + R2).
 
   NOTE: This file is intentionally ASCII-only. Windows PowerShell 5.1 reads
   .ps1 files as ANSI unless they carry a UTF-8 BOM, which would corrupt
@@ -45,13 +45,13 @@ function Get-Status([string]$path) {
   catch { if ($_.Exception.Response) { return [int]$_.Exception.Response.StatusCode } else { return 0 } }
 }
 
-Write-Host "`n=== Casa Plume smoke test: $BaseUrl ===`n" -ForegroundColor Cyan
+Write-Host "`n=== Chen Furniture smoke test: $BaseUrl ===`n" -ForegroundColor Cyan
 
 # 1. Static assets
 Write-Host '1) Static assets'
 try {
   $homePage = Invoke-WebRequest -Uri "$BaseUrl/" -UseBasicParsing -TimeoutSec 25
-  if ($homePage.StatusCode -eq 200 -and $homePage.Content -match 'Casa Plume') { Ok 'GET / -> 200 with expected content' }
+  if ($homePage.StatusCode -eq 200 -and $homePage.Content -match 'Chen Furniture') { Ok 'GET / -> 200 with expected content' }
   else { Bad 'GET / returned unexpected content' }
 } catch { Bad "GET / failed: $($_.Exception.Message)" }
 
@@ -136,14 +136,14 @@ if ($Upload) {
   } elseif (-not (Get-Command curl.exe -ErrorAction SilentlyContinue)) {
     Info 'curl.exe not found, skipping upload test'
   } else {
-    $pngPath = Join-Path $env:TEMP 'casaplume-smoke.png'
-    $jarPath = Join-Path $env:TEMP 'casaplume-smoke-cookies.txt'
+    $pngPath = Join-Path $env:TEMP 'chenfurniture-smoke.png'
+    $jarPath = Join-Path $env:TEMP 'chenfurniture-smoke-cookies.txt'
     [System.IO.File]::WriteAllBytes(
       $pngPath,
       [Convert]::FromBase64String('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=')
     )
 
-    $loginFile = Join-Path $env:TEMP 'casaplume-smoke-login.json'
+    $loginFile = Join-Path $env:TEMP 'chenfurniture-smoke-login.json'
     $loginBody = @{ email = $Email; password = $Password } | ConvertTo-Json -Compress
     Set-Content -LiteralPath $loginFile -Value $loginBody -Encoding ASCII
     # --data-binary @file: PowerShell would otherwise mangle the JSON quotes

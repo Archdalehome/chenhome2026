@@ -1,4 +1,4 @@
-# Casa Plume — 手工抱枕品牌电商站
+# Chen Furniture — 手工抱枕品牌电商站
 
 Next.js 14（App Router）+ Tailwind CSS + **Cloudflare 运行时**（Pages Functions + D1 + R2），
 **纯静态导出**后部署到 **Cloudflare Pages**，全站响应式（PC / 平板 / 手机）。
