@@ -89,10 +89,13 @@ npm run dev
 
    | 项 | 值 |
    | --- | --- |
-   | Framework preset | `Next.js (Static HTML Export)` |
+   | Framework preset | 选 `Next.js (Static HTML Export)`；下拉里没有这项就选 `None`（不影响结果） |
    | Build command | `npm run build` |
    | Build output directory | `out` |
-   | Node version（环境变量） | `NODE_VERSION` = `20` |
+   | Node version（环境变量） | `NODE_VERSION` = `20`（或依赖仓库里的 `.node-version`） |
+
+   > 只有「构建命令 + 输出目录」这两项是必须正确的；预设只是自动填充它们。
+   > ⚠️ 不要选普通的 `Next.js` 预设，它会走 `@cloudflare/next-on-pages`（SSR 路线），与本项目的纯静态导出不匹配。
 
 4. **Environment variables** 中添加第 3 节的三条变量（Production 和 Preview 都建议加）。
 5. Save and Deploy。之后每次 `git push` 都会自动重新构建。
@@ -208,4 +211,16 @@ chenhome/
 | 上传图片报 `new row violates row-level security policy` | Storage 策略未执行，重跑 `database.sql` 第 4 节 |
 | 新增商品在前台看不到 | 前台为静态导出，需要重新构建 / 触发 Deploy Hook |
 | 商品、系列新页面 404 | 该 slug 的静态页在构建时不存在，重新构建即可 |
+| 部署日志报 `Output directory "out" not found` | 说明 `npm run build` 没成功，往上翻日志找第一条 `Error`；本地执行 `npm run build` 可复现 |
+| 部署成功但访问路径 404 | 检查输出目录是否填 `out`。本项目生成的是无扩展名 HTML（`/shop` 对应 `shop.html`），Cloudflare Pages 会按官方规则自动匹配 `/shop` ↗ `shop.html`，并把 `/shop.html` 重定向到 `/shop` |
+
+### 部署前自检（本仓库已验证）
+
+- [x] `npm run build` 成功：`Compiled successfully` + `Generating static pages (27/27)`，产物 22 个 HTML（含 `404.html`）
+- [x] `npm run typecheck` 通过（exit 0）
+- [x] 不配置任何环境变量也能构建成功（前台纯静态，后台/订阅会提示未配置）
+- [x] 产物含 `robots.txt`、`sitemap.xml`、`icon.svg`、`_headers`、`404.html`
+- [x] `_headers` 只使用 Cloudflare 官方文档认可的路径格式（`/*`、`/_next/static/*`），避免规则解析失败导致部署报错
+- [x] 仓库不含 `node_modules` / `.next` / `out` / `.env.local`（`.gitignore` 已生效）
+
 
