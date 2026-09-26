@@ -1,9 +1,9 @@
-{
+﻿{
   // ============================================================
-  // 本地开发专用模板。
-  // `npm run dev:setup` 会把它复制为仓库根目录的 wrangler.jsonc；
-  // 根目录的 wrangler.jsonc 已被 .gitignore 忽略，不会提交，
-  // 所以生产环境不会采用它 —— 线上的 D1 / R2 绑定在 Pages 控制台配置（见 README）。
+  // 鏈湴寮€鍙戜笓鐢ㄦā鏉裤€?
+  // `npm run dev:setup` 浼氭妸瀹冨鍒朵负浠撳簱鏍圭洰褰曠殑 wrangler.jsonc锛?
+  // 鏍圭洰褰曠殑 wrangler.jsonc 宸茶 .gitignore 蹇界暐锛屼笉浼氭彁浜わ紝
+  // 鎵€浠ョ敓浜х幆澧冧笉浼氶噰鐢ㄥ畠 鈥斺€?绾夸笂鐨?D1 / R2 缁戝畾鍦?Pages 鎺у埗鍙伴厤缃紙瑙?README锛夈€?
   // ============================================================
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "chenhome2026",
@@ -13,6 +13,12 @@
     {
       "binding": "DB",
       "database_name": "chenhome-db",
+      // 鈿狅笍 蹇呴』涓庢湰璐﹀彿 Pages 椤圭洰閲岄厤缃殑 database_id 瀹屽叏涓€鑷达紒
+      // 鍘熷洜锛歚wrangler pages dev` 浼氳鍙?Pages 椤圭洰閲岀殑绾夸笂缁戝畾锛堢湡瀹?ID锛夛紝
+      // 鑰?`d1 execute --local` / `admin:create:local` 璇诲彇鏈枃浠讹紱
+      // 涓よ€?ID 涓嶅悓灏变細鎸囧悜涓や釜涓嶅悓鐨勬湰鍦?SQLite锛岃〃鐜颁负
+      // 鈥滄湰鍦板缓濂戒簡绠＄悊鍛樿处鍙凤紝鐧诲綍鍗翠竴鐩存彁绀洪偖绠辨垨瀵嗙爜涓嶆纭€濄€?
+      // 鎹㈣处鍙锋椂鐢?`npx wrangler d1 list` 鏌ュ埌浣犺嚜宸辩殑 ID 鏇挎崲鍗冲彲銆?
       "database_id": "local-dev-only"
     }
   ],
@@ -23,3 +29,4 @@
     }
   ]
 }
+

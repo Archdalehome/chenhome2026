@@ -53,7 +53,10 @@ export async function verifyPassword(password: string, stored: string): Promise<
   if (parts.length !== 4 || parts[0] !== 'pbkdf2') return false
 
   const iterations = Number(parts[1])
-  if (!Number.isInteger(iterations) || iterations < 10000) return false
+  // 下限只用于拒绝明显非法的哈希（正式允许的最低值见 scripts/create-admin.mjs 的 MIN_ITERATIONS）。
+  // ⚠️ 不要把这里调高于 create-admin.mjs 的默认迭代次数（免费版默认为 5000），
+  //    否则会出现“密码正确却始终登录失败”的诡异现象。
+  if (!Number.isInteger(iterations) || iterations < 1000) return false
 
   let salt: Uint8Array
   let expected: Uint8Array

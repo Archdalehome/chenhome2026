@@ -109,9 +109,10 @@ const wranglerArgs = [
   'd1',
   'execute',
   DB_NAME,
-  // 本地模式用根目录的 wrangler.jsonc（由 npm run dev:setup 生成，需与 wrangler pages dev 共用同一份本地 D1）；
-  // 远程模式用不含 D1 绑定的配置，按数据库名走 API 解析
-  ...(useLocal ? ['--local'] : ['-c', REMOTE_CONFIG, '--remote']),
+  // 本地模式：用根目录的 wrangler.jsonc（由 npm run dev:setup 生成），并固定 --persist-to，
+  // 保证与 `wrangler pages dev`、`npm run db:init:local` 读取的是同一份本地 SQLite；
+  // 远程模式：用不含 D1 绑定的配置，按数据库名走 API 解析
+  ...(useLocal ? ['--local', '--persist-to=.wrangler/state'] : ['-c', REMOTE_CONFIG, '--remote']),
   `--file=${SQL_FILE}`,
 ]
 

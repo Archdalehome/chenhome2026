@@ -10,10 +10,10 @@
     "build": "next build",
     "typecheck": "tsc --noEmit && tsc -p functions/tsconfig.json --noEmit",
     "preview": "npx --yes serve@14 out",
-    "preview:cf": "wrangler pages dev",
+    "preview:cf": "wrangler pages dev --persist-to=.wrangler/state",
     "dev:setup": "node scripts/setup-local.mjs",
     "db:init": "wrangler d1 execute chenhome-db -c dev/wrangler.remote.jsonc --remote --file=./schema.sql",
-    "db:init:local": "wrangler d1 execute chenhome-db --local --file=./schema.sql",
+    "db:init:local": "wrangler d1 execute chenhome-db --local --persist-to=.wrangler/state --file=./schema.sql",
     "admin:create": "node scripts/create-admin.mjs",
     "admin:create:local": "node scripts/create-admin.mjs --local",
     "smoke:local": "powershell -NoProfile -ExecutionPolicy Bypass -File dev/smoke-test.ps1"
