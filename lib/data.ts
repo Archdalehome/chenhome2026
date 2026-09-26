@@ -1,11 +1,15 @@
 /**
- * 数据访问层：直接调用 Supabase（浏览器端 anon key + RLS 鉴权）
+ * 前端数据访问层：调用同源的 Pages Functions（functions/api/**）。
  *
- * 说明：本项目的 API Routes（app/api/**）在 `output: 'export'` 静态导出下不可用，
- * 因此统一改为前端直连 Supabase。anon key 本身是公开的，
- * 真正的权限边界由 database.sql 中的 RLS 策略 + admin_users 白名单保证。
+ * 后端由 Cloudflare 提供：
+ *   - D1（SQLite）存商品 / 系列 / 首页文案 / 订阅者 / 管理员
+ *   - R2 存上传的图片，经 /api/images/<key> 同源读取
+ *   - SESSION_SECRET + HttpOnly Cookie 做后台登录会话
+ *
+ * 导出的函数名与参数与旧版（Supabase 版）保持一致，页面组件无需改动。
  */
-import { getSupabase } from './supabase'
+
+/* ----------------------------- 类型 ----------------------------- */
 
 export type ProductRow = {
   id: string
@@ -14,10 +18,10 @@ export type ProductRow = {
   image_url: string
   description: string | null
   detail: string | null
-  slug: string | null
+  slug: string
   collection_id: string | null
-  is_featured: boolean | null
-  sort_order: number | null
+  is_featured: number
+  sort_order: number
   created_at?: string
 }
 
@@ -39,7 +43,7 @@ export type CollectionRow = {
   sub_title: string | null
   image_url: string | null
   slug: string
-  sort_order: number | null
+  sort_order: number
   created_at?: string
 }
 
@@ -68,124 +72,118 @@ export type SubscriberRow = {
   created_at: string
 }
 
-export const IMAGE_BUCKET = 'product-images'
+/* -------------------------- 请求封装 ---------------------------- */
 
-function fail(error: { message: string } | null): never {
-  throw new Error(error?.message || '操作失败，请稍后重试。')
+async function api<T>(path: string, init?: RequestInit): Promise<T> {
+  let response: Response
+  try {
+    response = await fetch(path, { credentials: 'same-origin', cache: 'no-store', ...init })
+  } catch {
+    throw new Error('无法连接后端接口，请确认部署时包含 functions/ 目录（见 README）')
+  }
+
+  const contentType = response.headers.get('Content-Type') ?? ''
+  const payload = contentType.includes('application/json')
+    ? ((await response.json().catch(() => null)) as { error?: string } | null)
+    : null
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error('接口不存在（404）：部署时可能漏掉了 functions/ 目录，或该路径未被 /api/* 路由覆盖')
+    }
+    throw new Error(payload?.error || `请求失败（HTTP ${response.status}）`)
+  }
+
+  return payload as T
 }
 
-/* ------------------------------- 商品 ------------------------------- */
-
-export async function listProducts(): Promise<ProductRow[]> {
-  const { data, error } = await getSupabase()
-    .from('products')
-    .select('*')
-    .order('sort_order', { ascending: true })
-  if (error) fail(error)
-  return (data ?? []) as ProductRow[]
-}
-
-export async function createProduct(input: ProductInput): Promise<void> {
-  const { error } = await getSupabase().from('products').insert([input])
-  if (error) fail(error)
-}
-
-export async function updateProduct(id: string, input: ProductInput): Promise<void> {
-  const { error } = await getSupabase().from('products').update(input).eq('id', id)
-  if (error) fail(error)
-}
-
-export async function deleteProduct(id: string): Promise<void> {
-  const { error } = await getSupabase().from('products').delete().eq('id', id)
-  if (error) fail(error)
-}
-
-/* ------------------------------- 系列 ------------------------------- */
-
-export async function listCollections(): Promise<CollectionRow[]> {
-  const { data, error } = await getSupabase()
-    .from('collections')
-    .select('*')
-    .order('sort_order', { ascending: true })
-  if (error) fail(error)
-  return (data ?? []) as CollectionRow[]
-}
-
-export async function createCollection(input: CollectionInput): Promise<void> {
-  const { error } = await getSupabase().from('collections').insert([input])
-  if (error) fail(error)
-}
-
-export async function updateCollection(id: string, input: CollectionInput): Promise<void> {
-  const { error } = await getSupabase().from('collections').update(input).eq('id', id)
-  if (error) fail(error)
-}
-
-export async function deleteCollection(id: string): Promise<void> {
-  const { error } = await getSupabase().from('collections').delete().eq('id', id)
-  if (error) fail(error)
-}
-
-/* ----------------------------- 首页内容 ----------------------------- */
-
-export async function listHomeContent(): Promise<HomeContentRow[]> {
-  const { data, error } = await getSupabase().from('home_page_content').select('*')
-  if (error) fail(error)
-  return (data ?? []) as HomeContentRow[]
-}
-
-export async function updateHomeContent(id: string, patch: Partial<HomeContentRow>): Promise<void> {
-  const { error } = await getSupabase().from('home_page_content').update(patch).eq('id', id)
-  if (error) fail(error)
-}
-
-/* ------------------------------- 订阅 ------------------------------- */
-
-export async function subscribeEmail(email: string): Promise<void> {
-  const { error } = await getSupabase().from('email_subscribers').insert([{ email }])
-  if (error) {
-    if (error.code === '23505') throw new Error('这个邮箱已经订阅过了 🙂')
-    fail(error)
+function jsonInit(method: string, body: unknown): RequestInit {
+  return {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body ?? {}),
   }
 }
 
+/* ------------------------------ 商品 ---------------------------- */
+
+export async function listProducts(): Promise<ProductRow[]> {
+  return (await api<ProductRow[]>('/api/products')) ?? []
+}
+
+export async function createProduct(input: ProductInput): Promise<void> {
+  await api('/api/products', jsonInit('POST', input))
+}
+
+export async function updateProduct(id: string, input: ProductInput): Promise<void> {
+  await api('/api/products', jsonInit('PUT', { ...input, id }))
+}
+
+export async function deleteProduct(id: string): Promise<void> {
+  await api(`/api/products?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+}
+
+/* ------------------------------ 系列 ---------------------------- */
+
+export async function listCollections(): Promise<CollectionRow[]> {
+  return (await api<CollectionRow[]>('/api/collections')) ?? []
+}
+
+export async function createCollection(input: CollectionInput): Promise<void> {
+  await api('/api/collections', jsonInit('POST', input))
+}
+
+export async function updateCollection(id: string, input: CollectionInput): Promise<void> {
+  await api('/api/collections', jsonInit('PUT', { ...input, id }))
+}
+
+export async function deleteCollection(id: string): Promise<void> {
+  await api(`/api/collections?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+}
+
+/* ---------------------------- 首页内容 --------------------------- */
+
+export async function listHomeContent(): Promise<HomeContentRow[]> {
+  return (await api<HomeContentRow[]>('/api/home-content')) ?? []
+}
+
+export async function updateHomeContent(id: string, patch: Partial<HomeContentRow>): Promise<void> {
+  await api('/api/home-content', jsonInit('PUT', { ...patch, id }))
+}
+
+/* ------------------------------ 订阅 ----------------------------- */
+
+export async function subscribeEmail(email: string): Promise<{ alreadySubscribed: boolean }> {
+  const result = await api<{ alreadySubscribed: boolean }>('/api/subscribe', jsonInit('POST', { email }))
+  return { alreadySubscribed: Boolean(result?.alreadySubscribed) }
+}
+
 export async function listSubscribers(): Promise<SubscriberRow[]> {
-  const { data, error } = await getSupabase()
-    .from('email_subscribers')
-    .select('*')
-    .order('created_at', { ascending: false })
-  if (error) fail(error)
-  return (data ?? []) as SubscriberRow[]
+  return (await api<SubscriberRow[]>('/api/subscribers')) ?? []
 }
 
-/* ------------------------------- 上传 ------------------------------- */
+/* ---------------------------- 图片上传 --------------------------- */
 
+/** 上传到 R2，返回站内地址（/api/images/...） */
 export async function uploadProductImage(file: File): Promise<string> {
-  const supabase = getSupabase()
-  const ext = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : 'jpg'
-  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
-
-  const { error } = await supabase.storage
-    .from(IMAGE_BUCKET)
-    .upload(path, file, { cacheControl: '31536000', upsert: false })
-  if (error) fail(error)
-
-  return supabase.storage.from(IMAGE_BUCKET).getPublicUrl(path).data.publicUrl
+  const form = new FormData()
+  form.append('file', file)
+  const result = await api<{ url: string }>('/api/upload', { method: 'POST', body: form })
+  if (!result?.url) throw new Error('上传成功但未返回图片地址')
+  return result.url
 }
 
-/* ------------------------------- 鉴权 ------------------------------- */
+/* ------------------------------ 鉴权 ----------------------------- */
 
 export async function signInWithEmail(email: string, password: string): Promise<void> {
-  const { error } = await getSupabase().auth.signInWithPassword({ email, password })
-  if (error) fail(error)
+  await api('/api/auth/login', jsonInit('POST', { email, password }))
 }
 
 export async function signOut(): Promise<void> {
-  await getSupabase().auth.signOut()
+  await api('/api/auth/logout', { method: 'POST' })
 }
 
-/** 返回 true 表示当前已有管理员会话 */
 export async function hasActiveSession(): Promise<boolean> {
-  const { data } = await getSupabase().auth.getSession()
-  return Boolean(data.session)
+  const result = await api<{ authenticated: boolean }>('/api/auth/session')
+  return Boolean(result?.authenticated)
 }

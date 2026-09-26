@@ -1,0 +1,8 @@
+# 复制为 .dev.vars，供 `npm run preview:cf`（wrangler pages dev）本地读取
+# .dev.vars 已被 .gitignore 忽略，不会提交
+#
+# 生产环境的同名变量请在 Cloudflare Pages 里配置为 Secret：
+#   Workers & Pages -> 你的项目 -> Settings -> Variables and Secrets -> Add -> type: Secret
+
+# 会话签名密钥：随便一串 32 位以上的随机字符（生产环境务必换成新的、别用这个）
+SESSION_SECRET=dev-only-session-secret-please-change-me

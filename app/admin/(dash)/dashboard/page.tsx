@@ -78,7 +78,7 @@ export default function AdminDashboard() {
       </div>
 
       <p className="mt-10 rounded border border-stone-200 bg-white p-4 text-sm leading-6 text-stone-600">
-        提示：后台数据保存在 Supabase。前台页面为静态导出（构建期生成），
+        提示：后台数据保存在 Cloudflare D1，上传的图片存在 R2。前台页面为静态导出（构建期生成），
         修改商品/系列后如需立即反映到前台，可在 Cloudflare Pages 中触发一次重新部署
         （Deploy hook 或 Push 一次提交）。
       </p>

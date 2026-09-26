@@ -4,13 +4,13 @@
  * 管理后台登录守卫 + 顶部导航。
  *
  * 原实现没有任何鉴权：任何人打开 /admin/dashboard 就能看到后台界面。
- * 现在统一用 Supabase Auth 会话校验，未登录则跳转到 /admin/login。
+ * 鉴权由 Pages Functions 提供：HMAC 签名的 HttpOnly 会话 Cookie，
+ * 未登录 / 会话过期则跳转到 /admin/login。
  */
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { hasActiveSession, signOut } from '@/lib/data'
-import { isSupabaseConfigured, SUPABASE_NOT_CONFIGURED_MESSAGE } from '@/lib/supabase'
 
 const NAV = [
   { href: '/admin/dashboard', label: '概览' },
@@ -27,13 +27,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     let alive = true
-
-    if (!isSupabaseConfigured) {
-      setStatus('ready')
-      return () => {
-        alive = false
-      }
-    }
 
     hasActiveSession()
       .then((ok) => {
@@ -57,15 +50,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     await signOut()
     router.replace('/admin/login')
   }, [router])
-
-  if (!isSupabaseConfigured) {
-    return (
-      <main className="mx-auto max-w-2xl px-6 py-24">
-        <h1 className="mb-4 text-2xl">后台暂不可用</h1>
-        <p className="text-sm leading-6 text-stone-600">{SUPABASE_NOT_CONFIGURED_MESSAGE}</p>
-      </main>
-    )
-  }
 
   if (status === 'checking') {
     return <main className="mx-auto max-w-7xl px-6 py-24 text-stone-500">正在校验登录状态…</main>

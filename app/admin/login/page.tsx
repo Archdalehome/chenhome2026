@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { signInWithEmail } from '@/lib/data'
-import { isSupabaseConfigured, SUPABASE_NOT_CONFIGURED_MESSAGE } from '@/lib/supabase'
 
 export default function AdminLogin() {
   const router = useRouter()
@@ -29,12 +28,6 @@ export default function AdminLogin() {
   return (
     <main className="mx-auto max-w-md px-6 py-24">
       <h1 className="mb-8 text-3xl">Admin Login</h1>
-
-      {!isSupabaseConfigured && (
-        <p className="mb-6 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-          {SUPABASE_NOT_CONFIGURED_MESSAGE}
-        </p>
-      )}
 
       <form onSubmit={login} className="space-y-4">
         <label className="block">
@@ -64,7 +57,7 @@ export default function AdminLogin() {
         {err && <p className="text-sm text-red-600">{err}</p>}
         <button
           type="submit"
-          disabled={loading || !isSupabaseConfigured}
+          disabled={loading}
           className="w-full bg-terracotta px-6 py-3 text-white disabled:opacity-60"
         >
           {loading ? '登录中…' : 'Sign In'}
